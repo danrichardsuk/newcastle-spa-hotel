@@ -29,15 +29,15 @@
   <aside class="sidebar">
     <div class="eyebrow">Exhaustive spa-hotel audit · Newcastle upon Tyne</div>
     <h1>78 researched spa hotels within ~3 hours</h1>
-    <p class="intro">The database is comprehensive; the editorial ranking is selective. It opens on the <strong>24 high-quality recommendations</strong>, with value, secondary, leisure-led, niche, forthcoming and boundary candidates available through the filters. You can now filter by an estimated total spa-break cost for two and rank hotels by quality-to-price value. Research current to 2 Sep 2026.</p>
+    <p class="intro">The database is comprehensive; the editorial ranking is selective. It opens on the <strong>24 high-quality recommendations</strong>, with value, secondary, leisure-led, niche, forthcoming and boundary candidates available through the filters. Current deal prices are stored separately from the normal pricing model, so a temporary bargain never distorts the underlying quality ranking. Research and deal feed checked 2 Sep 2026.</p>
 
     <div class="summary">
       <div class="stat"><strong>78</strong><span>researched</span></div>
       <div class="stat"><strong>24</strong><span>recommended</span></div>
-      <div class="stat"><strong>12</strong><span>best-value picks</span></div>
+      <div class="stat"><strong>5</strong><span>current deal hotels</span></div>
     </div>
 
-    <input id="search" class="search" type="search" placeholder="Search hotels, facilities, places or tags…" aria-label="Search spa database" autocomplete="off">
+    <input id="search" class="search" type="search" placeholder="Search hotels, facilities, places, deals or tags…" aria-label="Search spa database" autocomplete="off">
 
     <div class="filtergrid">
       <label><span>Quality tier</span><select id="tierFilter">
@@ -63,8 +63,9 @@
         <option value="150">Up to 2 hr 30</option>
         <option value="180">Up to 3 hours</option>
       </select></label>
-      <label><span>Budget for 2</span><select id="costFilter">
+      <label><span>Max available price for 2</span><select id="costFilter">
         <option value="0">Any known price</option>
+        <option value="200">Up to ~£200</option>
         <option value="250">Up to ~£250</option>
         <option value="300">Up to ~£300</option>
         <option value="400">Up to ~£400</option>
@@ -74,9 +75,11 @@
       </select></label>
       <label><span>Sort by</span><select id="sortFilter">
         <option value="recommended">Recommended order</option>
-        <option value="value">Best value</option>
-        <option value="priceLow">Lowest estimated cost</option>
-        <option value="priceHigh">Highest estimated cost</option>
+        <option value="deal">Best current deal</option>
+        <option value="dealPrice">Lowest current deal price</option>
+        <option value="value">Best normal-price value</option>
+        <option value="priceLow">Lowest available cost</option>
+        <option value="priceHigh">Highest available cost</option>
         <option value="score">Research score</option>
         <option value="closest">Closest first</option>
         <option value="review">Review score</option>
@@ -86,7 +89,8 @@
 
     <div class="featurehead"><strong>Combine features</strong><span>Tap multiple to narrow further</span></div>
     <div class="controls" aria-label="Feature filters">
-      <button class="chip" id="bestValueOnly" type="button">★ Best value only</button>
+      <button class="chip" id="currentDealsOnly" type="button">🔥 Current deals only</button>
+      <button class="chip" id="bestValueOnly" type="button">★ Best normal-price value</button>
       <button class="chip" data-tag="spa-first">Spa-first</button>
       <button class="chip" data-tag="nearby">Near Newcastle</button>
       <button class="chip" data-tag="couples">Couples</button>
@@ -113,17 +117,18 @@
     </div>
 
     <div class="alertbox">
-      <strong>How the value index works</strong>
-      It uses the estimated total spa-break cost for two against the research quality score, with a modest independent-review adjustment where a comparable rating is available. The index is only awarded to the recommended and value/high-secondary tiers, so cheap leisure-only hotels do not dominate the result. Price estimates are midpoints or representative published/package prices, not live quotes.
+      <strong>Deal recommendations vs value index</strong>
+      <strong>Current deal</strong> recommendations compare the live deal price with our normal estimated cost and the hotel's quality evidence. Provider headline savings are shown separately but do not determine our recommendation. The <strong>normal-price value index</strong> remains independent of temporary deals. Deal prices can disappear or change without notice, so always confirm the provider page before paying.
     </div>
 
     <div id="list" class="list"></div>
 
-    <p class="note">The exhaustive audit found 78 plausible candidates. Research scores use the latest audit framework: 30% spa depth/facilities, 25% independent guest evidence, 15% hotel quality, 10% spa integration/serenity, 10% value, 5% Newcastle accessibility and 5% evidence/operational confidence. Scores of 84+ form the recommended list. Cost filtering uses a normalised estimated total for two extracted from the researched price guidance; hotels without a comparable estimate are excluded when a budget ceiling is selected. The separate value index compares quality with estimated cost and should be treated as a purchasing aid rather than a replacement for the main spa-quality ranking. Map coordinates and drive times are planning aids; use the Directions links for live routing. Map © OpenStreetMap contributors.</p>
+    <p class="note">The exhaustive audit found 78 plausible candidates. Research scores use the latest audit framework: 30% spa depth/facilities, 25% independent guest evidence, 15% hotel quality, 10% spa integration/serenity, 10% value, 5% Newcastle accessibility and 5% evidence/operational confidence. Scores of 84+ form the recommended list. The budget filter uses the current deal price where a checked deal exists, otherwise the normalised estimated cost for two. Current deals live in a separate feed with provider, inclusions, checked date and URL; the initial feed contains verified Wowcher offers for Redworth Hall, Slaley Hall, Radisson Blu Durham, Westerwood and Oulton Hall. Map coordinates and drive times are planning aids; use the Directions links for live routing. Map © OpenStreetMap contributors.</p>
   </aside>
 </div>
 <script src="spa-data.js"></script>
 <script src="spa-candidates.js"></script>
+<script src="spa-deals.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

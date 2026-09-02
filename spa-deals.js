@@ -78,3 +78,12 @@ window.SPA_DEALS={
     }]
   }
 };
+
+// The page opens on the top-24 tier, but the current verified deals are mostly value/secondary hotels.
+// Move to the full research universe before app.js handles the deal-filter click.
+(()=>{
+  const btn=document.getElementById('currentDealsOnly'),tier=document.getElementById('tierFilter');
+  if(btn&&tier)btn.addEventListener('click',()=>{
+    if(!btn.classList.contains('active')&&tier.value==='shortlist')tier.value='all';
+  });
+})();

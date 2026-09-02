@@ -1,8 +1,9 @@
-const hotels=[...(window.SPA_HOTELS||[]),...(window.SPA_CANDIDATES||[])];
+const dealFeed=window.SPA_DEALS||{};
+const hotels=[...(window.SPA_HOTELS||[]),...(window.SPA_CANDIDATES||[])].map(h=>({...h,deal:dealFeed[h.name]||null}));
 const $=id=>document.getElementById(id);
-const list=$('list'),search=$('search'),tierFilter=$('tierFilter'),regionFilter=$('regionFilter'),driveFilter=$('driveFilter'),costFilter=$('costFilter'),sortFilter=$('sortFilter'),resultCount=$('resultCount'),clearFilters=$('clearFilters'),bestValueOnly=$('bestValueOnly');
+const list=$('list'),search=$('search'),tierFilter=$('tierFilter'),regionFilter=$('regionFilter'),driveFilter=$('driveFilter'),costFilter=$('costFilter'),sortFilter=$('sortFilter'),resultCount=$('resultCount'),clearFilters=$('clearFilters'),bestValueOnly=$('bestValueOnly'),currentDealsOnly=$('currentDealsOnly');
 const tagButtons=[...document.querySelectorAll('[data-tag]')];
-let activeTags=new Set(),valueOnly=false,map,mapReady=false,markers=new Map(),selectedKey=null;
+let activeTags=new Set(),valueOnly=false,dealOnly=false,map,mapReady=false,markers=new Map(),selectedKey=null;
 
 const tierOrder={shortlist:0,value:1,secondary:2,niche:3,leisure:4,forthcoming:5,boundary:6};
 const tierNames={shortlist:'Recommended 24',value:'Value / high-secondary',secondary:'Secondary',niche:'Niche format',leisure:'Leisure-led',forthcoming:'Forthcoming',boundary:'3-hour boundary'};
@@ -48,9 +49,61 @@ const valueUniverse=hotels.filter(h=>['shortlist','value'].includes(h.tier)&&raw
 const valueRaws=valueUniverse.map(rawValue),valueMin=Math.min(...valueRaws),valueMax=Math.max(...valueRaws);
 function valueIndex(h){const r=rawValue(h);if(!r)return null;if(valueMax===valueMin)return 100;return Math.round(55+45*((r-valueMin)/(valueMax-valueMin)));}
 const bestValueKeys=new Set([...valueUniverse].sort((a,b)=>rawValue(b)-rawValue(a)).slice(0,12).map(keyFor));
-const labelsFor=h=>{const a=h.labels?.length?[...h.labels]:[tierLabel(h),h.region,driveText(h)];if(bestValueKeys.has(keyFor(h)))a.unshift('Best value');return a.filter(Boolean);};
+
+const dealOffers=h=>Array.isArray(h.deal?.offers)?h.deal.offers:[];
+const featuredDeal=h=>dealOffers(h).find(x=>x.recommended)||dealOffers(h).slice().sort((a,b)=>a.price2-b.price2)[0]||null;
+const dealCost=h=>featuredDeal(h)?.price2??null;
+const availableCost=h=>dealCost(h)??estimatedCost(h);
+function dealVsNormal(h){
+  const d=dealCost(h),n=estimatedCost(h);
+  return d&&n?Math.round(((n-d)/n)*100):null;
+}
+function dealRecommendation(h){
+  const d=featuredDeal(h); if(!d)return null;
+  const saving=dealVsNormal(h),q=qualityFor(h);
+  if(saving===null)return {label:'Deal found — compare direct',saving:null};
+  if(saving>=35&&(q??0)>=75)return {label:'Excellent deal',saving};
+  if(saving>=25&&(q??0)>=72)return {label:'Very good deal',saving};
+  if(saving>=15)return {label:'Good deal',saving};
+  if(saving>=5)return {label:'Small saving',saving};
+  if(saving<0)return {label:'Compare direct',saving};
+  return {label:'Fair deal',saving};
+}
+function dealSortScore(h){
+  const d=dealCost(h); if(!d)return -1;
+  const q=qualityFor(h)??({secondary:72,niche:74,leisure:64,boundary:84}[h.tier]??68);
+  const saving=Math.max(0,dealVsNormal(h)??0);
+  return (q/d)*(1+saving/200);
+}
+const labelsFor=h=>{
+  const a=h.labels?.length?[...h.labels]:[tierLabel(h),h.region,driveText(h)];
+  if(featuredDeal(h))a.unshift('Current deal');
+  const rec=dealRecommendation(h);if(rec&&['Excellent deal','Very good deal'].includes(rec.label))a.unshift(rec.label);
+  if(bestValueKeys.has(keyFor(h)))a.unshift('Best value');
+  return a.filter(Boolean);
+};
 const costText=h=>{const c=estimatedCost(h);return c?`~£${Math.round(c/5)*5} for 2`:'No comparable estimate';};
-const valueText=h=>{const v=valueIndex(h);return v?`${v}/100 · quality vs price`:'Not enough comparable data';};
+const availableCostText=h=>{const c=availableCost(h);return c?`~£${Math.round(c/5)*5} for 2`:'No comparable price';};
+const valueText=h=>{const v=valueIndex(h);return v?`${v}/100 · quality vs normal price`:'Not enough comparable data';};
+const checkedText=s=>{if(!s)return '';const [y,m,d]=s.split('-');return `${d}/${m}/${y}`;};
+
+function dealBox(h){
+  const d=featuredDeal(h);if(!d)return '';
+  const rec=dealRecommendation(h),alts=dealOffers(h).filter(x=>x!==d);
+  const saving=rec?.saving;
+  const comparison=Number.isFinite(saving)
+    ? saving>0?`About ${saving}% below our normal estimated spa-break cost.`:saving<0?`About ${Math.abs(saving)}% above our normal estimate — compare direct before booking.`:`Close to our normal estimate.`
+    :'No directly comparable normal-price baseline.';
+  const providerClaim=Number.isFinite(d.advertisedSaving)?` ${esc(d.provider)} advertises up to ${d.advertisedSaving}% off its reference price.`:'';
+  const altHtml=alts.length?`<br><span><strong>Alternative:</strong> ${alts.map(x=>`£${x.price2} for 2 · ${esc(x.short||x.inclusions||'different package')}`).join(' · ')}</span>`:'';
+  return `<div class="cardalert dealbox">
+    <strong>🔥 ${esc(rec?.label||'Current deal')} · £${esc(d.price2)} for 2</strong>
+    <span>${esc(d.inclusions||'See provider for inclusions')}</span><br>
+    <span>${esc(comparison)}${providerClaim}</span>${altHtml}<br>
+    <span>${esc(d.provider||'Deal provider')} · checked ${esc(checkedText(d.checked))}${d.validity?` · ${esc(d.validity)}`:''}</span>
+    ${d.url?`<br><a href="${esc(d.url)}" target="_blank" rel="noopener">View current deal ↗</a>`:''}
+  </div>`;
+}
 
 function tierClass(h){return `tier-${h.tier||'secondary'}`;}
 function card(h){
@@ -65,9 +118,11 @@ function card(h){
     </div>
     <div class="tierline"><span class="tierpill">${esc(tierLabel(h))}</span>${h.region?`<span>${esc(h.region)}</span>`:''}</div>
     <div class="desc">${esc(h.desc||defaultDesc(h))}</div>
+    ${dealBox(h)}
     <div class="facts">
       <div class="fact"><strong>Independent review</strong>${reviewText(h)}</div>
-      <div class="fact"><strong>Estimated cost</strong>${esc(costText(h))}</div>
+      <div class="fact"><strong>Available price</strong>${esc(availableCostText(h))}${featuredDeal(h)?' · current deal':''}</div>
+      <div class="fact"><strong>Normal estimate</strong>${esc(costText(h))}</div>
       <div class="fact"><strong>Value index</strong>${esc(valueText(h))}</div>
       <div class="fact"><strong>Price detail</strong>${esc(h.price||defaultPrice(h))}</div>
       <div class="fact"><strong>Booking lead</strong>${esc(h.lead||defaultLead(h))}</div>
@@ -91,8 +146,10 @@ function sorted(a){
     if(mode==='closest')return (x.driveMins??999)-(y.driveMins??999)||String(x.name).localeCompare(y.name);
     if(mode==='score')return (Number.isFinite(y.score)?y.score:-1)-(Number.isFinite(x.score)?x.score:-1)||(x.rank??999)-(y.rank??999);
     if(mode==='review')return (Number.isFinite(y.review)?y.review:-1)-(Number.isFinite(x.review)?x.review:-1)||(x.rank??999)-(y.rank??999);
-    if(mode==='priceLow')return (estimatedCost(x)??Infinity)-(estimatedCost(y)??Infinity)||String(x.name).localeCompare(y.name);
-    if(mode==='priceHigh')return (estimatedCost(y)??-1)-(estimatedCost(x)??-1)||String(x.name).localeCompare(y.name);
+    if(mode==='priceLow')return (availableCost(x)??Infinity)-(availableCost(y)??Infinity)||String(x.name).localeCompare(y.name);
+    if(mode==='priceHigh')return (availableCost(y)??-1)-(availableCost(x)??-1)||String(x.name).localeCompare(y.name);
+    if(mode==='deal')return dealSortScore(y)-dealSortScore(x)||(dealCost(x)??Infinity)-(dealCost(y)??Infinity);
+    if(mode==='dealPrice')return (dealCost(x)??Infinity)-(dealCost(y)??Infinity)||String(x.name).localeCompare(y.name);
     if(mode==='value')return (rawValue(y)??-1)-(rawValue(x)??-1)||(x.rank??999)-(y.rank??999);
     if(mode==='name')return String(x.name).localeCompare(y.name);
     return (tierOrder[x.tier]??9)-(tierOrder[y.tier]??9)||(x.rank??999)-(y.rank??999)||(Number.isFinite(y.score)?y.score:-1)-(Number.isFinite(x.score)?x.score:-1)||(x.driveMins??999)-(y.driveMins??999);
@@ -104,10 +161,15 @@ function visible(){
     if(!tierMatch(h,tier))return false;
     if(region!=='all'&&h.region!==region)return false;
     if(Number.isFinite(h.driveMins)&&h.driveMins>maxDrive)return false;
-    const c=estimatedCost(h);if(Number.isFinite(maxCost)&&maxCost!==Infinity&&(!c||c>maxCost))return false;
+    const c=availableCost(h);if(Number.isFinite(maxCost)&&maxCost!==Infinity&&(!c||c>maxCost))return false;
     if(valueOnly&&!bestValueKeys.has(keyFor(h)))return false;
+    if(dealOnly&&!featuredDeal(h))return false;
     if(activeTags.size&&![...activeTags].every(t=>(h.tags||[]).includes(t)))return false;
-    if(q){const blob=`${h.name} ${h.area} ${h.region||''} ${h.address||''} ${driveText(h)} ${h.category||''} ${h.price||''} ${h.desc||''} ${(h.facilities||[]).join(' ')} ${(h.tags||[]).join(' ')} ${labelsFor(h).join(' ')}`.toLowerCase();if(!blob.includes(q))return false;}
+    if(q){
+      const dealBlob=dealOffers(h).map(x=>`${x.provider||''} ${x.inclusions||''} ${x.price2||''}`).join(' ');
+      const blob=`${h.name} ${h.area} ${h.region||''} ${h.address||''} ${driveText(h)} ${h.category||''} ${h.price||''} ${h.desc||''} ${(h.facilities||[]).join(' ')} ${(h.tags||[]).join(' ')} ${labelsFor(h).join(' ')} ${dealBlob}`.toLowerCase();
+      if(!blob.includes(q))return false;
+    }
     return true;
   }));
 }
@@ -128,7 +190,8 @@ function changed(){render();fitVisible();}
 search.addEventListener('input',changed);
 tagButtons.forEach(btn=>btn.addEventListener('click',()=>{const tag=btn.dataset.tag;activeTags.has(tag)?activeTags.delete(tag):activeTags.add(tag);btn.classList.toggle('active',activeTags.has(tag));changed();}));
 bestValueOnly.addEventListener('click',()=>{valueOnly=!valueOnly;bestValueOnly.classList.toggle('active',valueOnly);changed();});
-clearFilters.addEventListener('click',()=>{tierFilter.value='shortlist';regionFilter.value='all';driveFilter.value='0';costFilter.value='0';sortFilter.value='recommended';search.value='';valueOnly=false;bestValueOnly.classList.remove('active');activeTags.clear();tagButtons.forEach(b=>b.classList.remove('active'));changed();});
+currentDealsOnly.addEventListener('click',()=>{dealOnly=!dealOnly;currentDealsOnly.classList.toggle('active',dealOnly);if(dealOnly&&sortFilter.value==='recommended')sortFilter.value='deal';changed();});
+clearFilters.addEventListener('click',()=>{tierFilter.value='shortlist';regionFilter.value='all';driveFilter.value='0';costFilter.value='0';sortFilter.value='recommended';search.value='';valueOnly=false;dealOnly=false;bestValueOnly.classList.remove('active');currentDealsOnly.classList.remove('active');activeTags.clear();tagButtons.forEach(b=>b.classList.remove('active'));changed();});
 
 function mapFailed(){$('fallback').hidden=false;}
 function initMap(){
@@ -136,7 +199,7 @@ function initMap(){
   try{
     map=L.map('map',{zoomControl:true,scrollWheelZoom:true,preferCanvas:true});
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}).addTo(map);
-    hotels.filter(mapped).forEach(h=>{const key=keyFor(h),klass=`marker-${h.tier||'secondary'}`;const icon=L.divIcon({className:'',html:`<div class="num-marker ${klass}">${esc(badgeText(h))}</div>`,iconSize:[32,32],iconAnchor:[16,16]});const m=L.marker([h.lat,h.lng],{icon,title:h.name});const score=Number.isFinite(h.score)?`<strong>${h.score.toFixed(0)}/100</strong> · `:`<strong>${esc(tierLabel(h))}</strong> · `;const value=valueIndex(h)?` · value ${valueIndex(h)}/100`:'';m.bindPopup(`<div class="popup"><h3>${h.rank?'#'+h.rank+' ':''}${esc(h.name)}</h3><p>${score}${Number.isFinite(h.review)?h.review.toFixed(1)+'/5 · ':''}${esc(driveText(h))}</p><p>${esc(costText(h))}${value}</p><p>${esc(h.category||'Hotel spa candidate')}</p><a href="${gmap(h)}" target="_blank" rel="noopener">Directions from Newcastle ↗</a></div>`);m.on('click',()=>selectHotel(key,true));markers.set(key,m);});
+    hotels.filter(mapped).forEach(h=>{const key=keyFor(h),klass=`marker-${h.tier||'secondary'}`;const icon=L.divIcon({className:'',html:`<div class="num-marker ${klass}">${esc(badgeText(h))}</div>`,iconSize:[32,32],iconAnchor:[16,16]});const m=L.marker([h.lat,h.lng],{icon,title:h.name});const score=Number.isFinite(h.score)?`<strong>${h.score.toFixed(0)}/100</strong> · `:`<strong>${esc(tierLabel(h))}</strong> · `;const value=valueIndex(h)?` · value ${valueIndex(h)}/100`:'';const d=featuredDeal(h);const deal=d?`<p><strong>Current deal: £${esc(d.price2)} for 2</strong> · ${esc(dealRecommendation(h)?.label||'deal found')}</p>`:'';m.bindPopup(`<div class="popup"><h3>${h.rank?'#'+h.rank+' ':''}${esc(h.name)}</h3><p>${score}${Number.isFinite(h.review)?h.review.toFixed(1)+'/5 · ':''}${esc(driveText(h))}</p>${deal}<p>${esc(availableCostText(h))}${value}</p><p>${esc(h.category||'Hotel spa candidate')}</p><a href="${gmap(h)}" target="_blank" rel="noopener">Directions from Newcastle ↗</a></div>`);m.on('click',()=>selectHotel(key,true));markers.set(key,m);});
     mapReady=true;$('fallback').hidden=true;render();fitVisible();setTimeout(()=>map.invalidateSize(),150);
   }catch(e){mapFailed();}
 }

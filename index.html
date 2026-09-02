@@ -29,12 +29,12 @@
   <aside class="sidebar">
     <div class="eyebrow">Exhaustive spa-hotel audit · Newcastle upon Tyne</div>
     <h1>78 researched spa hotels within ~3 hours</h1>
-    <p class="intro">The database is comprehensive; the editorial ranking is selective. It opens on the <strong>24 high-quality recommendations</strong>, with value, secondary, leisure-led, niche, forthcoming and boundary candidates available through the filters. Research current to 2 Sep 2026.</p>
+    <p class="intro">The database is comprehensive; the editorial ranking is selective. It opens on the <strong>24 high-quality recommendations</strong>, with value, secondary, leisure-led, niche, forthcoming and boundary candidates available through the filters. You can now filter by an estimated total spa-break cost for two and rank hotels by quality-to-price value. Research current to 2 Sep 2026.</p>
 
     <div class="summary">
       <div class="stat"><strong>78</strong><span>researched</span></div>
       <div class="stat"><strong>24</strong><span>recommended</span></div>
-      <div class="stat"><strong>15</strong><span>value options</span></div>
+      <div class="stat"><strong>12</strong><span>best-value picks</span></div>
     </div>
 
     <input id="search" class="search" type="search" placeholder="Search hotels, facilities, places or tags…" aria-label="Search spa database" autocomplete="off">
@@ -63,8 +63,20 @@
         <option value="150">Up to 2 hr 30</option>
         <option value="180">Up to 3 hours</option>
       </select></label>
+      <label><span>Budget for 2</span><select id="costFilter">
+        <option value="0">Any known price</option>
+        <option value="250">Up to ~£250</option>
+        <option value="300">Up to ~£300</option>
+        <option value="400">Up to ~£400</option>
+        <option value="500">Up to ~£500</option>
+        <option value="750">Up to ~£750</option>
+        <option value="1000">Up to ~£1,000</option>
+      </select></label>
       <label><span>Sort by</span><select id="sortFilter">
         <option value="recommended">Recommended order</option>
+        <option value="value">Best value</option>
+        <option value="priceLow">Lowest estimated cost</option>
+        <option value="priceHigh">Highest estimated cost</option>
         <option value="score">Research score</option>
         <option value="closest">Closest first</option>
         <option value="review">Review score</option>
@@ -74,6 +86,7 @@
 
     <div class="featurehead"><strong>Combine features</strong><span>Tap multiple to narrow further</span></div>
     <div class="controls" aria-label="Feature filters">
+      <button class="chip" id="bestValueOnly" type="button">★ Best value only</button>
       <button class="chip" data-tag="spa-first">Spa-first</button>
       <button class="chip" data-tag="nearby">Near Newcastle</button>
       <button class="chip" data-tag="couples">Couples</button>
@@ -100,13 +113,13 @@
     </div>
 
     <div class="alertbox">
-      <strong>September 2026 watchlist</strong>
-      Matfen Hall's Aurelius Spa is scheduled to open 15 Sep 2026 and remains unranked. Rockliffe has had recent refurbishment impacts. Feversham Arms has 2026 renovation messaging. Gleneagles is retained only as a traffic-sensitive three-hour boundary case.
+      <strong>How the value index works</strong>
+      It uses the estimated total spa-break cost for two against the research quality score, with a modest independent-review adjustment where a comparable rating is available. The index is only awarded to the recommended and value/high-secondary tiers, so cheap leisure-only hotels do not dominate the result. Price estimates are midpoints or representative published/package prices, not live quotes.
     </div>
 
     <div id="list" class="list"></div>
 
-    <p class="note">The exhaustive audit found 78 plausible candidates. Research scores use the latest audit framework: 30% spa depth/facilities, 25% independent guest evidence, 15% hotel quality, 10% spa integration/serenity, 10% value, 5% Newcastle accessibility and 5% evidence/operational confidence. Scores of 84+ form the recommended list. Lower tiers remain visible because a discounted 78–83 property can still be an excellent purchase. Prices are indicative rather than live quotes. Map coordinates and drive times are planning aids; use the Directions links for live routing. Map © OpenStreetMap contributors.</p>
+    <p class="note">The exhaustive audit found 78 plausible candidates. Research scores use the latest audit framework: 30% spa depth/facilities, 25% independent guest evidence, 15% hotel quality, 10% spa integration/serenity, 10% value, 5% Newcastle accessibility and 5% evidence/operational confidence. Scores of 84+ form the recommended list. Cost filtering uses a normalised estimated total for two extracted from the researched price guidance; hotels without a comparable estimate are excluded when a budget ceiling is selected. The separate value index compares quality with estimated cost and should be treated as a purchasing aid rather than a replacement for the main spa-quality ranking. Map coordinates and drive times are planning aids; use the Directions links for live routing. Map © OpenStreetMap contributors.</p>
   </aside>
 </div>
 <script src="spa-data.js"></script>

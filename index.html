@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="format-detection" content="telephone=no">
+<meta name="theme-color" content="#315b58">
+<title>Best Spa Hotels Near Newcastle upon Tyne</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://tile.openstreetmap.org" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" onerror="this.onerror=null;this.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+  <main class="mapwrap">
+    <div id="map" aria-label="Interactive map of spa hotels within approximately three hours of Newcastle upon Tyne"></div>
+    <div id="fallback" class="fallback">
+      <div>
+        <h2>Loading the interactive map…</h2>
+        <p>If it does not appear, the ranked hotel list and Google Maps directions still work.</p>
+        <a href="https://www.google.com/maps/search/?api=1&query=spa%20hotels%20near%20Newcastle%20upon%20Tyne" target="_blank" rel="noopener">Open spa hotels in Google Maps ↗</a>
+      </div>
+    </div>
+    <div class="mapbadge">Numbered by research ranking · tap a pin for details</div>
+  </main>
+
+  <aside class="sidebar">
+    <div class="eyebrow">Spa escapes · from Newcastle upon Tyne</div>
+    <h1>12 of the best spa hotels within ~3 hours</h1>
+    <p class="intro">Interactive shortlist based on spa depth, independent reviews, hotel quality, setting, drive convenience and value. Research current to 1 Sep 2026.</p>
+
+    <div class="summary">
+      <div class="stat"><strong>12</strong><span>shortlisted</span></div>
+      <div class="stat"><strong>93.1</strong><span>top score</span></div>
+      <div class="stat"><strong>~25m</strong><span>closest top pick</span></div>
+    </div>
+
+    <input id="search" class="search" type="search" placeholder="Search hotels, facilities or areas…" aria-label="Search hotels, facilities or areas" autocomplete="off">
+
+    <div class="controls" aria-label="Spa hotel filters">
+      <button class="chip active" data-filter="all">All 12</button>
+      <button class="chip" data-filter="nearby">Under ~1 hr</button>
+      <button class="chip" data-filter="spa">Spa-first</button>
+      <button class="chip" data-filter="couples">Couples</button>
+      <button class="chip" data-filter="scotland">Scotland</button>
+      <button class="chip" data-filter="nature">Nature / Lakes</button>
+      <button class="chip" data-filter="golf">Golf</button>
+      <button class="chip" data-filter="value">Value picks</button>
+    </div>
+
+    <a class="trail" href="https://www.google.com/maps/search/?api=1&query=spa%20hotels%20near%20Newcastle%20upon%20Tyne" target="_blank" rel="noopener">Open spa shortlist in Google Maps ↗</a>
+
+    <div class="alertbox">
+      <strong>September 2026 booking notes</strong>
+      Matfen Hall's Aurelius Spa is scheduled to open 15 Sep 2026. Rockliffe had refurbishment restrictions through 7 Sep. Check current operating details before committing.
+    </div>
+
+    <div id="list" class="list"></div>
+
+    <p class="note">Research score /100 is an analytical comparison: 35% spa breadth, 20% independent guest rating, 15% hotel & dining, 10% setting, 10% drive convenience, 5% value/price transparency and 5% operational confidence. Prices are indicative, not live quotes. Drive times assume normal traffic. Map © OpenStreetMap contributors.</p>
+  </aside>
+</div>
+<script src="spa-data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

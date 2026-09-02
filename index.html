@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#315b58">
-<title>Best Spa Hotels Near Newcastle upon Tyne</title>
+<title>Spa Hotels Within 3 Hours of Newcastle</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://tile.openstreetmap.org" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" onerror="this.onerror=null;this.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'">
@@ -15,55 +15,102 @@
 <body>
 <div class="app">
   <main class="mapwrap">
-    <div id="map" aria-label="Interactive map of high-quality spa hotels within approximately three hours of Newcastle upon Tyne"></div>
+    <div id="map" aria-label="Interactive map of researched spa hotels within approximately three hours of Newcastle upon Tyne"></div>
     <div id="fallback" class="fallback">
       <div>
         <h2>Loading the interactive map…</h2>
-        <p>If it does not appear, the ranked hotel list and Google Maps directions still work.</p>
+        <p>If it does not appear, the full hotel database and Google Maps directions still work.</p>
         <a href="https://www.google.com/maps/search/?api=1&query=spa%20hotels%20near%20Newcastle%20upon%20Tyne" target="_blank" rel="noopener">Open spa hotels in Google Maps ↗</a>
       </div>
     </div>
-    <div class="mapbadge">20 ranked active spas · F = forthcoming · tap a pin for details</div>
+    <div id="mapbadge" class="mapbadge">24 recommended spas shown by default</div>
   </main>
 
   <aside class="sidebar">
-    <div class="eyebrow">Spa escapes · from Newcastle upon Tyne</div>
-    <h1>20 of the best spa hotels within ~3 hours</h1>
-    <p class="intro">Expanded deep-research shortlist based on genuine hotel-spa depth, independent reviews, hotel quality, setting, drive convenience and value. Matfen Hall is shown separately as a forthcoming contender. Research current to 2 Sep 2026.</p>
+    <div class="eyebrow">Exhaustive spa-hotel audit · Newcastle upon Tyne</div>
+    <h1>78 researched spa hotels within ~3 hours</h1>
+    <p class="intro">The database is comprehensive; the editorial ranking is selective. It opens on the <strong>24 high-quality recommendations</strong>, with value, secondary, leisure-led, niche, forthcoming and boundary candidates available through the filters. Research current to 2 Sep 2026.</p>
 
     <div class="summary">
-      <div class="stat"><strong>20</strong><span>ranked active spas</span></div>
-      <div class="stat"><strong>94.8</strong><span>top score</span></div>
-      <div class="stat"><strong>~25m</strong><span>closest top picks</span></div>
+      <div class="stat"><strong>78</strong><span>researched</span></div>
+      <div class="stat"><strong>24</strong><span>recommended</span></div>
+      <div class="stat"><strong>15</strong><span>value options</span></div>
     </div>
 
-    <input id="search" class="search" type="search" placeholder="Search hotels, facilities or areas…" aria-label="Search hotels, facilities or areas" autocomplete="off">
+    <input id="search" class="search" type="search" placeholder="Search hotels, facilities, places or tags…" aria-label="Search spa database" autocomplete="off">
 
-    <div class="controls" aria-label="Spa hotel filters">
-      <button class="chip active" data-filter="all">All 21</button>
-      <button class="chip" data-filter="nearby">Under ~1 hr</button>
-      <button class="chip" data-filter="spa">Spa-first</button>
-      <button class="chip" data-filter="couples">Couples</button>
-      <button class="chip" data-filter="scotland">Scotland</button>
-      <button class="chip" data-filter="nature">Nature / Lakes</button>
-      <button class="chip" data-filter="golf">Golf</button>
-      <button class="chip" data-filter="value">Value picks</button>
-      <button class="chip" data-filter="forthcoming">Forthcoming</button>
+    <div class="filtergrid">
+      <label><span>Quality tier</span><select id="tierFilter">
+        <option value="shortlist" selected>Recommended 24</option>
+        <option value="value">Value / high-secondary</option>
+        <option value="other">Other researched</option>
+        <option value="forthcoming">Forthcoming</option>
+        <option value="boundary">3-hour boundary</option>
+        <option value="all">All 78</option>
+      </select></label>
+      <label><span>Region</span><select id="regionFilter">
+        <option value="all">All regions</option>
+        <option value="North East">North East</option>
+        <option value="Yorkshire">Yorkshire</option>
+        <option value="Cumbria / Lakes">Cumbria / Lakes</option>
+        <option value="Scotland">Scotland</option>
+      </select></label>
+      <label><span>Max drive</span><select id="driveFilter">
+        <option value="0">Any within audit</option>
+        <option value="60">Up to 1 hour</option>
+        <option value="90">Up to 1 hr 30</option>
+        <option value="120">Up to 2 hours</option>
+        <option value="150">Up to 2 hr 30</option>
+        <option value="180">Up to 3 hours</option>
+      </select></label>
+      <label><span>Sort by</span><select id="sortFilter">
+        <option value="recommended">Recommended order</option>
+        <option value="score">Research score</option>
+        <option value="closest">Closest first</option>
+        <option value="review">Review score</option>
+        <option value="name">Hotel name</option>
+      </select></label>
     </div>
+
+    <div class="featurehead"><strong>Combine features</strong><span>Tap multiple to narrow further</span></div>
+    <div class="controls" aria-label="Feature filters">
+      <button class="chip" data-tag="spa-first">Spa-first</button>
+      <button class="chip" data-tag="nearby">Near Newcastle</button>
+      <button class="chip" data-tag="couples">Couples</button>
+      <button class="chip" data-tag="adults">Adults-focused</button>
+      <button class="chip" data-tag="family">Family</button>
+      <button class="chip" data-tag="golf">Golf</button>
+      <button class="chip" data-tag="city">City</button>
+      <button class="chip" data-tag="coast">Coast</button>
+      <button class="chip" data-tag="lakes">Lakes</button>
+      <button class="chip" data-tag="nature">Nature</button>
+      <button class="chip" data-tag="value">Value</button>
+      <button class="chip" data-tag="deals">Deal-led</button>
+    </div>
+
+    <div class="resultbar"><span id="resultCount">24 shown</span><button id="clearFilters" type="button">Reset filters</button></div>
 
     <a class="trail" href="https://www.google.com/maps/search/?api=1&query=spa%20hotels%20near%20Newcastle%20upon%20Tyne" target="_blank" rel="noopener">Open spa hotels in Google Maps ↗</a>
 
+    <div class="legend" aria-label="Map and ranking legend">
+      <span><i class="dot top"></i> Ranked top 24</span>
+      <span><i class="dot value"></i> Value</span>
+      <span><i class="dot other"></i> Secondary / leisure / niche</span>
+      <span><i class="dot future"></i> Forthcoming / boundary</span>
+    </div>
+
     <div class="alertbox">
-      <strong>September 2026 booking notes</strong>
-      Matfen Hall's Aurelius Spa is scheduled to open 15 Sep 2026 and is not included in the active ranking yet. Rockliffe's non-resident spa/treatment restrictions were due to end 7 Sep 2026. Check current operating details before committing.
+      <strong>September 2026 watchlist</strong>
+      Matfen Hall's Aurelius Spa is scheduled to open 15 Sep 2026 and remains unranked. Rockliffe has had recent refurbishment impacts. Feversham Arms has 2026 renovation messaging. Gleneagles is retained only as a traffic-sensitive three-hour boundary case.
     </div>
 
     <div id="list" class="list"></div>
 
-    <p class="note">Research score /100 is an analytical comparison using the same framework throughout: 35% spa breadth/quality, 20% independent guest rating, 15% hotel & dining, 10% setting/wellness, 10% drive convenience, 5% value/price transparency and 5% operational confidence. Prices are indicative rather than live quotes. Drive times are planning estimates for normal traffic; central Edinburgh and Lake District approaches can vary materially. Map © OpenStreetMap contributors.</p>
+    <p class="note">The exhaustive audit found 78 plausible candidates. Research scores use the latest audit framework: 30% spa depth/facilities, 25% independent guest evidence, 15% hotel quality, 10% spa integration/serenity, 10% value, 5% Newcastle accessibility and 5% evidence/operational confidence. Scores of 84+ form the recommended list. Lower tiers remain visible because a discounted 78–83 property can still be an excellent purchase. Prices are indicative rather than live quotes. Map coordinates and drive times are planning aids; use the Directions links for live routing. Map © OpenStreetMap contributors.</p>
   </aside>
 </div>
 <script src="spa-data.js"></script>
+<script src="spa-candidates.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
